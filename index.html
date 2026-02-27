@@ -481,6 +481,7 @@
     /* White-to-offwhite gradient for line 1 */
     .geo-line-1 {
       display: block;
+      padding-bottom: 0.15em;
       background: linear-gradient(to bottom, #EEE9E2, rgba(238,233,226,0.78));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -490,6 +491,7 @@
     /* Forest green accent gradient for line 2 */
     .geo-line-2 {
       display: block;
+      padding-bottom: 0.15em;
       background: linear-gradient(to right, #7BC492, #BDD9C8, #8DB99A);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -1723,7 +1725,7 @@
              exact viewport the intro just occupied — seamless handoff. */
           portfolio.style.position  = 'relative';
           portfolio.style.inset     = '';
-          portfolio.style.overflow  = '';
+          portfolio.style.overflow  = 'visible';
           portfolio.style.marginTop = '-100vh';
         },
 
@@ -1757,7 +1759,7 @@
       /* Switch from fixed overlay to normal flow */
       portfolio.style.position  = 'relative';
       portfolio.style.inset     = '';
-      portfolio.style.overflow  = '';
+      portfolio.style.overflow  = 'visible';
       portfolio.style.marginTop = '-100vh';
       const scrollTarget = spacer.offsetTop + spacer.offsetHeight - window.innerHeight;
       window.scrollTo({ top: scrollTarget, behavior: 'instant' });
