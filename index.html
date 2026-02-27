@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tez Ferguson — Digital Consultant & AI Strategist</title>
+  <meta name="description" content="AI strategy, digital marketing, web development, SEO, and paid advertising. Tez Ferguson — Independent consultant and Head of Digital at Kingly Clark.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       TOKENS & RESET
+    ══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #060E09;
+      --bg-2:         #0C1A10;
+      --bg-3:         #112015;
+      --text:         #EBE9E3;
+      --text-dim:     #8AA896;
+      --accent:       #8DB99A;
+      --accent-pale:  #BDD9C8;
+      --accent-glow:  rgba(141, 185, 154, 0.08);
+      --border:       rgba(141, 185, 154, 0.10);
+      --border-hi:    rgba(141, 185, 154, 0.26);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      overflow-y: hidden; /* locked until video ends */
+      cursor: none;
+    }
+
+    body.unlocked { overflow-y: auto; }
+
+    /* ── Custom cursor ── */
+    #cursor {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.25s, height 0.25s, opacity 0.25s;
+      mix-blend-mode: screen;
+    }
+
+    #cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(141, 185, 154, 0.45);
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease-out, width 0.3s, height 0.3s;
+    }
+
+    a:hover ~ #cursor,
+    button:hover ~ #cursor { width: 16px; height: 16px; }
+
+    /* ── Grain texture overlay ── */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 9990;
+      pointer-events: none;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    /* ══════════════════════════════════════════════════
+       INTRO — FULL SCREEN VIDEO
+    ══════════════════════════════════════════════════ */
+    #intro {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      overflow: hidden;
+      background: #000;
+    }
+
+    /* Letterbox bars */
+    #intro::before,
+    #intro::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      z-index: 3;
+      background: #000;
+      pointer-events: none;
+      transition: height 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    #intro::before { top: 0; height: 52px; }
+    #intro::after  { bottom: 0; height: 52px; }
+    #intro.open::before,
+    #intro.open::after { height: 0; }
+
+    #zoom-shell {
+      position: absolute;
+      inset: 0;
+      transform-origin: center 60%;
+      will-change: transform;
+    }
+
+    #video-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Vignette */
+    #intro-vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: radial-gradient(ellipse at 50% 55%, transparent 35%, rgba(5,14,24,0.75) 100%);
+      pointer-events: none;
+    }
+
+    /* Top-left wordmark during video */
+    #intro-mark {
+      position: absolute;
+      top: 28px;
+      left: 40px;
+      z-index: 10;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(238, 233, 226, 0.5);
+      opacity: 0;
+      transition: opacity 1s;
+    }
+    #intro-mark.show { opacity: 1; }
+
+    /* Skip */
+    #skip {
+      position: absolute;
+      top: 28px;
+      right: 40px;
+      z-index: 10;
+      background: transparent;
+      border: 1px solid rgba(238, 233, 226, 0.18);
+      color: rgba(238, 233, 226, 0.4);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 7px 18px;
+      cursor: none;
+      transition: all 0.2s;
+      opacity: 0;
+    }
+    #skip.show { opacity: 1; }
+    #skip:hover { border-color: rgba(238,233,226,0.5); color: rgba(238,233,226,0.8); }
+
+    /* Scroll cue */
+    #scroll-cue {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      transition: opacity 1.2s;
+      pointer-events: none;
+    }
+    #scroll-cue.show { opacity: 1; }
+
+    .cue-label {
+      font-size: 9px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(238, 233, 226, 0.4);
+    }
+
+    .cue-track {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--accent) 0%, transparent 100%);
+      animation: cue-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes cue-pulse {
+      0%, 100% { opacity: 0.9; transform: scaleY(1); }
+      50%       { opacity: 0.3; transform: scaleY(0.55); }
+    }
+
+    /* ══════════════════════════════════════════════════
+       LOADER OVERLAY
+    ══════════════════════════════════════════════════ */
+    #loader {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      background: #000;
+      transition: opacity 0.8s ease;
+    }
+
+    #loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #loader-bar-track {
+      width: 180px;
+      height: 1px;
+      background: rgba(141, 185, 154, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #loader-bar {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      transition: width 0.12s linear;
+    }
+
+    #loader-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: rgba(238, 233, 226, 0.28);
+    }
+
+    /* ══════════════════════════════════════════════════
+       ZOOM SPACER
+    ══════════════════════════════════════════════════ */
+    #zoom-spacer {
+      height: 600vh;
+      pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════════════════
+       PORTFOLIO
+    ══════════════════════════════════════════════════ */
+    /* Portfolio starts FIXED (full-viewport overlay behind #intro z-500).
+       This prevents it scrolling up from the bottom during the intro.
+       onLeave switches to position:relative so the rest of the page scrolls. */
+    #portfolio {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    #portfolio.active { pointer-events: auto; }
+
+    /* ── NAV ── */
+    .nav {
+      position: relative;
+      z-index: 400;
+      height: 68px;
+      padding: 0 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(5, 14, 24, 0.88);
+      backdrop-filter: blur(28px) saturate(1.4);
+      -webkit-backdrop-filter: blur(28px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 44px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 24px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--border-hi);
+      color: var(--accent);
+      transition: all 0.22s;
+    }
+    .nav-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    /* ── HERO — GEO-GEOMETRIC STYLE ── */
+    .hero {
+      position: relative;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--bg);
+      /* Perspective origin for 3-D depth — hero-inner uses translateZ to zoom */
+      perspective: 1200px;
+      perspective-origin: center center;
+    }
+
+    /* Ambient dual glow — forest green tones */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(80, 140, 100, 0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 75%, rgba(50, 100, 70, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after { content: none; }
+
+    /* ── Floating geometric shapes ── */
+    .geo-shapes {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    /*
+     * LIQUID GLASS SHAPES
+     * ───────────────────
+     * iPhone-style liquid glass: nearly transparent fill, heavy backdrop
+     * blur, white glass-edge border, layered inset shadows for thickness.
+     * The background is ~4% opacity — the blur does the visual work.
+     */
+    .geo-shape {
+      position: absolute;
+      border-radius: 100px;
+      opacity: 0; /* GSAP animates in */
+      will-change: transform, opacity;
+      /* Glass fill: almost transparent, subtle warm-green tint */
+      background: rgba(141, 185, 154, 0.04);
+      /* Frosted glass blur */
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      /* Glass edges: white top highlight + dark bottom */
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-top-color: rgba(255, 255, 255, 0.22);
+      border-bottom-color: rgba(0, 0, 0, 0.18);
+      /* Depth: outer shadow + inner top-light + inner bottom-dark */
+      box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.25),
+        0 2px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    /* Specular sheen — a subtle diagonal light catch across the pill */
+    .geo-shape::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 100px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 40%,
+        transparent 60%
+      );
+      pointer-events: none;
+    }
+
+    .shape-1 { width: 600px; height: 140px; left: -5%;  top: 18%; }
+    .shape-2 { width: 500px; height: 120px; right: -3%; top: 68%; }
+    .shape-3 { width: 300px; height: 80px;  left: 8%;   bottom: 10%; }
+    .shape-4 { width: 200px; height: 60px;  right: 18%; top: 12%; }
+    .shape-5 { width: 150px; height: 40px;  left: 22%;  top: 7%; }
+
+    /* ── Hero badge pill ── */
+    .geo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px 5px 10px;
+      border-radius: 100px;
+      background: rgba(141,185,154,0.04);
+      border: 1px solid rgba(141,185,154,0.13);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(238,233,226,0.45);
+      margin-bottom: 32px;
+    }
+
+    .geo-dot {
+      display: block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ── Hero inner — centred ── */
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 860px;
+      width: 100%;
+      padding: 0 32px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(38px, 5.5vw, 72px);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      margin-bottom: 28px;
+    }
+
+    /* White-to-offwhite gradient for line 1 */
+    .geo-line-1 {
+      display: block;
+      background: linear-gradient(to bottom, #EEE9E2, rgba(238,233,226,0.78));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Forest green accent gradient for line 2 */
+    .geo-line-2 {
+      display: block;
+      background: linear-gradient(to right, #7BC492, #BDD9C8, #8DB99A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Services list ── */
+    .geo-services {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 4px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    .geo-sep {
+      color: rgba(141,185,154,0.4);
+      padding: 0 6px;
+    }
+
+    .hero-lead {
+      font-size: 16px;
+      font-weight: 300;
+      color: rgba(238,233,226,0.38);
+      line-height: 1.8;
+      max-width: 440px;
+      margin-bottom: 48px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Top + bottom edge fades */
+    .geo-fade-t, .geo-fade-b {
+      position: absolute;
+      left: 0; right: 0;
+      height: 120px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .geo-fade-t {
+      top: 0;
+      background: linear-gradient(to bottom, var(--bg), transparent);
+    }
+    .geo-fade-b {
+      bottom: 0;
+      background: linear-gradient(to top, var(--bg), transparent);
+    }
+
+    /* ── Brand ticker ── */
+    .brand-strip {
+      width: 100%;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+      margin-bottom: 44px;
+    }
+
+    .brand-strip-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(235, 233, 227, 0.22);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .ticker-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: max-content;
+      animation: ticker-scroll 28s linear infinite;
+    }
+
+    .ticker-track:hover { animation-play-state: paused; }
+
+    .ticker-item {
+      padding: 0 42px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(235, 233, 227, 0.30);
+      white-space: nowrap;
+      transition: color 0.3s;
+    }
+    .ticker-item:hover { color: rgba(235, 233, 227, 0.65); }
+
+    .ticker-sep {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: rgba(141, 185, 154, 0.3);
+      flex-shrink: 0;
+    }
+
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 52px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 14px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      background: var(--accent-glow);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+    }
+
+    .btn-fill {
+      -webkit-appearance: none;
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      padding: 14px 38px;
+      border-radius: 100px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      background: var(--accent);
+      color: var(--bg);
+      border: 1px solid var(--accent);
+      cursor: pointer;
+      transition: all 0.22s;
+    }
+    .btn-fill:hover { background: var(--accent-pale); border-color: var(--accent-pale); }
+
+    .btn-ghost {
+      -webkit-appearance: none;
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      padding: 14px 38px;
+      border-radius: 100px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid rgba(238, 233, 226, 0.16);
+      cursor: pointer;
+      transition: all 0.22s;
+    }
+    .btn-ghost:hover { border-color: rgba(238,233,226,0.5); }
+
+    /* ── METRICS STRIP ── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .metric {
+      padding: 52px 44px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .metric:last-child { border-right: none; }
+
+    .metric::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 0.5s ease;
+    }
+    .metric:hover::before { width: 100%; }
+
+    .metric-val {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .metric-lbl {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    /* ── SERVICES ── */
+    .services {
+      padding: 120px 52px;
+    }
+
+    .section-pre {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+    .section-pre::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .section-h {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(34px, 4.5vw, 58px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.0;
+      margin-bottom: 72px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+    }
+
+    .svc {
+      padding: 52px 44px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.35s;
+    }
+
+    /* Remove borders on edges */
+    .svc:nth-child(3n) { border-right: none; }
+    .svc:nth-child(n+4) { border-bottom: none; }
+
+    .svc::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-pale));
+      transition: width 0.4s ease;
+    }
+    .svc:hover { background: var(--bg-2); }
+    .svc:hover::before { width: 100%; }
+
+    .svc-n {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      opacity: 0.6;
+      margin-bottom: 22px;
+    }
+
+    .svc-h {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .svc-p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.8;
+      margin-bottom: 26px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border: 1px solid rgba(141,185,154,0.22);
+      color: var(--accent);
+    }
+
+    /* ── ABOUT ── */
+    .about {
+      padding: 120px 52px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 88px;
+      align-items: start;
+    }
+
+    .about-copy p {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.9;
+      margin-bottom: 20px;
+    }
+
+    .about-copy p:first-of-type {
+      font-size: 19px;
+      font-weight: 300;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .creds {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .cred {
+      padding: 26px 30px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--accent);
+      transition: background 0.25s, border-color 0.25s;
+    }
+    .cred:hover { background: var(--bg-3); border-color: var(--border-hi); }
+
+    .cred-role {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+
+    .cred-org {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .cred-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+
+    /* ── CONTACT ── */
+    .contact {
+      padding: 150px 52px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 1000px; height: 600px;
+      background: radial-gradient(ellipse, rgba(141,185,154,0.05) 0%, transparent 62%);
+      pointer-events: none;
+    }
+
+    /* Large ghost text behind CTA */
+    .contact::after {
+      content: "LET'S GO";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(80px, 14vw, 200px);
+      font-weight: 800;
+      color: rgba(141,185,154,0.025);
+      white-space: nowrap;
+      letter-spacing: -0.04em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .contact-inner { position: relative; z-index: 1; }
+
+    .contact-h {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(44px, 7.5vw, 92px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.92;
+      margin-bottom: 28px;
+    }
+
+    .contact-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-dim);
+      max-width: 380px;
+      margin: 0 auto 48px;
+      line-height: 1.75;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 28px 52px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 28px;
+    }
+
+    .footer-links a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ══════════════════════════════════════════════════
+       ENQUIRY MODAL
+    ══════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(6, 14, 9, 0.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.25, 0.4, 0.25, 1);
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-card {
+      position: relative;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: rgba(17, 32, 21, 0.72);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-top-color: rgba(255,255,255,0.18);
+      border-bottom-color: rgba(0,0,0,0.20);
+      border-radius: 20px;
+      box-shadow:
+        0 32px 80px rgba(0,0,0,0.5),
+        0 8px 24px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -1px 0 rgba(0,0,0,0.14);
+      padding: 48px 48px 40px;
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.4s cubic-bezier(0.23, 0.86, 0.39, 0.96);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .modal-overlay.open .modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(141,185,154,0.07);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .modal-close:hover {
+      background: rgba(141,185,154,0.14);
+      color: var(--text);
+    }
+
+    .modal-pre {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 36px;
+    }
+
+    .modal-form { display: flex; flex-direction: column; gap: 20px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-field label,
+    .group-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .optional {
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+      opacity: 0.6;
+    }
+
+    .form-field input,
+    .form-field textarea {
+      background: rgba(141,185,154,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      resize: none;
+    }
+    .form-field input::placeholder,
+    .form-field textarea::placeholder {
+      color: rgba(235,233,227,0.25);
+    }
+    .form-field input:focus,
+    .form-field textarea:focus {
+      border-color: var(--border-hi);
+      background: rgba(141,185,154,0.07);
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 12px; }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .radio-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .check-item,
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-dim);
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .check-item:hover,
+    .radio-item:hover {
+      border-color: var(--border-hi);
+      color: var(--text);
+    }
+    .check-item input,
+    .radio-item input {
+      accent-color: var(--accent);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .check-item:has(input:checked),
+    .radio-item:has(input:checked) {
+      border-color: var(--accent);
+      background: rgba(141,185,154,0.08);
+      color: var(--text);
+    }
+
+    .modal-submit {
+      width: 100%;
+      margin-top: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Success state — hidden by default, shown after form submission */
+    .modal-success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 0 8px;
+      gap: 12px;
+    }
+    .modal-success.show {
+      display: flex;
+    }
+    .modal-success h3 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .modal-success p {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .success-icon { margin-bottom: 8px; }
+
+    @media (max-width: 600px) {
+      .modal-card { padding: 36px 24px 32px; }
+      .form-row { grid-template-columns: 1fr; }
+      .check-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       SCROLL-ANIMATED ELEMENTS
+    ══════════════════════════════════════════════════ */
+    .reveal { opacity: 0; transform: translateY(8px); }
+    .reveal.in { opacity: 1; transform: none; transition: opacity 0.55s ease-out, transform 0.55s ease-out; }
+
+    /* hero-inner zooms through perspective space on scroll */
+    .hero-inner {
+      transform-origin: center center;
+      will-change: transform, opacity;
+    }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════ */
+    @media (max-width: 960px) {
+      .nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 24px 80px; }
+      .hero::after { display: none; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric:nth-child(2) { border-right: none; }
+      .metric:nth-child(3) { border-right: 1px solid var(--border); }
+      .services { padding: 80px 24px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .svc { border-right: none !important; }
+      .svc:nth-child(n) { border-bottom: 1px solid var(--border); }
+      .svc:last-child { border-bottom: none; }
+      .about { padding: 80px 24px; grid-template-columns: 1fr; gap: 52px; }
+      .contact { padding: 100px 24px; }
+      .footer { padding: 24px; flex-direction: column; gap: 16px; text-align: center; }
+    }
+
+    @media (max-width: 600px) {
+      #intro-mark, #skip { display: none; }
+      .metric { padding: 36px 24px; }
+      .metric-val { font-size: 44px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- GRAIN OVERLAY -->
+  <div class="grain"></div>
+
+  <!-- CUSTOM CURSOR -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- ═══════════════════════════════════════════
+       INTRO — FULL SCREEN FPV VIDEO
+  ═══════════════════════════════════════════ -->
+  <div id="intro">
+    <div id="zoom-shell">
+      <!-- No video element. 121 pre-decoded JPEG frames are drawn
+           directly to canvas — zero seeking, zero decode latency. -->
+      <canvas id="video-canvas"></canvas>
+    </div>
+
+    <!-- Loading overlay — visible while frames preload -->
+    <div id="loader">
+      <div id="loader-bar-track">
+        <div id="loader-bar"></div>
+      </div>
+      <div id="loader-label">Loading</div>
+    </div>
+    <div id="intro-vignette"></div>
+
+    <div id="intro-mark">Tez Ferguson</div>
+
+    <button id="skip" onclick="skipIntro()">Skip ↓</button>
+
+    <div id="scroll-cue">
+      <span class="cue-label">Scroll to enter</span>
+      <div class="cue-track"></div>
+    </div>
+  </div>
+
+  <!-- Scroll spacer — provides the scroll height for GSAP zoom animation -->
+  <div id="zoom-spacer"></div>
+
+  <!-- ═══════════════════════════════════════════
+       PORTFOLIO
+  ═══════════════════════════════════════════ -->
+  <div id="portfolio">
+
+    <nav class="nav">
+      <a href="#" class="nav-brand">Tez Ferguson</a>
+      <ul class="nav-links">
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <a href="#contact" class="nav-btn">Work With Me</a>
+    </nav>
+
+    <!-- HERO — GEOMETRIC -->
+    <section class="hero">
+
+      <!-- Floating background shapes — GSAP controls opacity + rotation + y -->
+      <div class="geo-shapes" aria-hidden="true">
+        <div class="geo-shape shape-1"></div>
+        <div class="geo-shape shape-2"></div>
+        <div class="geo-shape shape-3"></div>
+        <div class="geo-shape shape-4"></div>
+        <div class="geo-shape shape-5"></div>
+      </div>
+
+      <!-- Edge fades to blend into nav / metrics -->
+      <div class="geo-fade-t"></div>
+      <div class="geo-fade-b"></div>
+
+      <div class="hero-inner">
+        <!-- Badge -->
+        <div class="geo-badge">
+          <span class="geo-dot"></span>
+          Digital Consultant · AI Strategist
+        </div>
+
+        <!-- Main title -->
+        <h1 class="hero-h1">
+          <span class="geo-line-1">Building Intelligent</span>
+          <span class="geo-line-2">Digital Futures</span>
+        </h1>
+
+        <!-- Service indicators -->
+        <div class="geo-services">
+          <span>AI Strategy</span>
+          <span class="geo-sep">·</span>
+          <span>Digital Marketing</span>
+          <span class="geo-sep">·</span>
+          <span>Full Stack Growth Solutions</span>
+        </div>
+
+        <!-- Brand ticker — clients & partners -->
+        <div class="brand-strip">
+          <p class="brand-strip-label">Brands worked with</p>
+          <div class="ticker-track" aria-hidden="true">
+            <!-- First set -->
+            <span class="ticker-item">Decathlon</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Spotify</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Ford</span><span class="ticker-sep"></span>
+            <span class="ticker-item">YouTube</span><span class="ticker-sep"></span>
+            <span class="ticker-item">eBay</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Nedbank</span><span class="ticker-sep"></span>
+            <span class="ticker-item">ABSA</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Amex</span><span class="ticker-sep"></span>
+            <!-- Duplicate for seamless loop — translateX(-50%) lands back at start -->
+            <span class="ticker-item">Decathlon</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Spotify</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Ford</span><span class="ticker-sep"></span>
+            <span class="ticker-item">YouTube</span><span class="ticker-sep"></span>
+            <span class="ticker-item">eBay</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Nedbank</span><span class="ticker-sep"></span>
+            <span class="ticker-item">ABSA</span><span class="ticker-sep"></span>
+            <span class="ticker-item">Amex</span><span class="ticker-sep"></span>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <a href="#contact" class="btn-fill" onclick="openModal(event)">Start a Project</a>
+          <a href="#contact" class="btn-ghost" onclick="openModal(event)">Get in Touch</a>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- metrics removed -->
+
+    <!-- services + about removed -->
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact">
+      <div class="contact-inner">
+        <div class="section-pre" style="justify-content: center; margin-bottom: 24px;">Let's Talk</div>
+        <h2 class="contact-h">Ready to Build<br>Something Real?</h2>
+        <p class="contact-sub">Available for select consulting engagements, AI projects, and strategic advisory roles.</p>
+        <div class="cta-row">
+          <button class="btn-fill" onclick="openModal()">Start a Project</button>
+          <button class="btn-ghost" onclick="openModal()">Get in Touch</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-copy">© 2026 Tez Ferguson. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/tezferguson/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://kinglyclark.com" target="_blank" rel="noopener">Kingly Clark</a>
+        <a href="https://xploited.media" target="_blank" rel="noopener">Xploited Media</a>
+      </div>
+    </footer>
+
+  </div><!-- /portfolio -->
+
+  <!-- ═══════════════════════════════════════════
+       ENQUIRY MODAL
+  ═══════════════════════════════════════════ -->
+  <div id="enquiry-overlay" class="modal-overlay" aria-hidden="true" onclick="closeModalOutside(event)">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <line x1="1" y1="1" x2="17" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="17" y1="1" x2="1" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <div class="modal-header">
+        <p class="modal-pre">New Enquiry</p>
+        <h2 class="modal-title" id="modal-title">Let's Talk<br>About Your Project</h2>
+      </div>
+
+      <form id="enquiry-form" class="modal-form" onsubmit="handleSubmit(event)">
+
+        <!-- Name + Email -->
+        <div class="form-row">
+          <div class="form-field">
+            <label for="f-name">Name</label>
+            <input id="f-name" name="name" type="text" placeholder="Your name" required autocomplete="name">
+          </div>
+          <div class="form-field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" placeholder="you@company.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <!-- Company -->
+        <div class="form-field">
+          <label for="f-company">Company <span class="optional">(optional)</span></label>
+          <input id="f-company" name="company" type="text" placeholder="Your company name" autocomplete="organization">
+        </div>
+
+        <!-- Services -->
+        <div class="form-group">
+          <label class="group-label">What do you need?</label>
+          <div class="check-grid">
+            <label class="check-item"><input type="checkbox" name="service" value="AI Strategy"><span>AI Strategy</span></label>
+            <label class="check-item"><input type="checkbox" name="service" value="Digital Marketing"><span>Digital Marketing</span></label>
+            <label class="check-item"><input type="checkbox" name="service" value="Web Development"><span>Web Development</span></label>
+            <label class="check-item"><input type="checkbox" name="service" value="SEO"><span>SEO</span></label>
+            <label class="check-item"><input type="checkbox" name="service" value="Paid Ads"><span>Paid Ads</span></label>
+            <label class="check-item"><input type="checkbox" name="service" value="Growth Consulting"><span>Growth Consulting</span></label>
+          </div>
+        </div>
+
+        <!-- Budget -->
+        <div class="form-group">
+          <label class="group-label">Budget range</label>
+          <div class="radio-grid">
+            <label class="radio-item"><input type="radio" name="budget" value="Under $5k"><span>Under $5k</span></label>
+            <label class="radio-item"><input type="radio" name="budget" value="$5k–$15k"><span>$5k–$15k</span></label>
+            <label class="radio-item"><input type="radio" name="budget" value="$15k–$30k"><span>$15k–$30k</span></label>
+            <label class="radio-item"><input type="radio" name="budget" value="$30k+"><span>$30k+</span></label>
+            <label class="radio-item"><input type="radio" name="budget" value="Let's discuss"><span>Let's discuss</span></label>
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="form-field">
+          <label for="f-message">Tell me more <span class="optional">(optional)</span></label>
+          <textarea id="f-message" name="message" rows="4" placeholder="A brief overview of your project or goals…"></textarea>
+        </div>
+
+        <button type="submit" class="btn-fill modal-submit">Send Enquiry</button>
+
+      </form>
+
+      <!-- Success state -->
+      <div id="modal-success" class="modal-success">
+        <div class="success-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" stroke="var(--accent)" stroke-width="1.5"/>
+            <polyline points="9,16 14,21 23,11" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <h3>Enquiry sent!</h3>
+        <p>Thanks for reaching out. I'll be in touch within 24 hours.</p>
+        <button class="btn-ghost" onclick="closeModal()">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════════ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ──────────────────────────────────────────────
+       CUSTOM CURSOR
+    ────────────────────────────────────────────── */
+    const cursor     = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mouseX = 0, mouseY = 0;
+    let ringX  = 0, ringY  = 0;
+
+    window.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top  = mouseY + 'px';
+    });
+
+    // Smooth ring follow
+    (function animateRing() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+      cursorRing.style.left = ringX + 'px';
+      cursorRing.style.top  = ringY + 'px';
+      requestAnimationFrame(animateRing);
+    })();
+
+    // Scale cursor on hoverable elements
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        gsap.to(cursor,     { scale: 2.2, duration: 0.2 });
+        gsap.to(cursorRing, { scale: 1.5, opacity: 0.6, duration: 0.2 });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(cursor,     { scale: 1, duration: 0.2 });
+        gsap.to(cursorRing, { scale: 1, opacity: 1, duration: 0.2 });
+      });
+    });
+
+    /* ──────────────────────────────────────────────
+       INTRO — IMAGE SEQUENCE SCROLL SCRUB
+
+       121 JPEG frames pre-decoded into Image objects.
+       No video, no seeking, no H.264 keyframe snapping.
+       Scroll progress → array index → ctx.drawImage().
+       Every frame transition is a direct memory read.
+    ────────────────────────────────────────────── */
+    const introEl   = document.getElementById('intro');
+    const zoomShell = document.getElementById('zoom-shell');
+    const scrollCue = document.getElementById('scroll-cue');
+    const markEl    = document.getElementById('intro-mark');
+    const skipEl    = document.getElementById('skip');
+    const portfolio = document.getElementById('portfolio');
+    const spacer    = document.getElementById('zoom-spacer');
+
+    /* heroInner starts deep in perspective space (translateZ -600px = 55% visible size)
+       and zooms toward the viewer as the user scrolls the final 30% of the intro.
+       perspective: 1200px on .hero creates the vanishing point — as translateZ
+       approaches 0, the element rushes forward with natural foreshortening. */
+    const heroInner            = document.querySelector('.hero-inner');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    heroInner.style.opacity   = '0';
+    if (!prefersReducedMotion)
+      heroInner.style.transform = 'translateZ(-600px) scale(0.8)';
+    const loaderEl  = document.getElementById('loader');
+    const loaderBar = document.getElementById('loader-bar');
+    const canvas    = document.getElementById('video-canvas');
+    const ctx       = canvas.getContext('2d');
+
+    const TOTAL_FRAMES = 102;
+    const frames       = new Array(TOTAL_FRAMES);
+    let   framesLoaded = 0;
+    let   currentFrame = -1;
+
+    /* ── Canvas always matches viewport ── */
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      /* Redraw current frame after resize */
+      if (currentFrame >= 0 && frames[currentFrame] && frames[currentFrame].complete) {
+        drawFrameImg(frames[currentFrame]);
+      }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    /* ── Cover-fit draw — mirrors CSS object-fit: cover ── */
+    function drawFrameImg(img) {
+      if (!img || !img.complete) return;
+      const iw = img.naturalWidth  || canvas.width;
+      const ih = img.naturalHeight || canvas.height;
+      const cw = canvas.width, ch = canvas.height;
+      const s  = Math.max(cw / iw, ch / ih);
+      const w  = iw * s, h = ih * s;
+      ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+    }
+
+    /* ── Show the frame at index idx ── */
+    function showFrame(idx) {
+      idx = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(idx)));
+      if (idx === currentFrame) return;
+      currentFrame = idx;
+      if (frames[idx] && frames[idx].complete) {
+        drawFrameImg(frames[idx]);
+      }
+    }
+
+    /* ── Preload all frames, update loader bar ── */
+    function preloadFrames(onComplete) {
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        const img = new Image();
+        const num = String(i + 1).padStart(4, '0');
+        img.src   = `frames/frame_${num}.jpg`;
+        frames[i] = img;
+
+        img.onload = () => {
+          framesLoaded++;
+          loaderBar.style.width = ((framesLoaded / TOTAL_FRAMES) * 100) + '%';
+          /* Show the first frame as soon as it's decoded */
+          if (i === 0) { currentFrame = 0; drawFrameImg(img); }
+          if (framesLoaded === TOTAL_FRAMES) onComplete();
+        };
+        img.onerror = () => {
+          framesLoaded++;
+          if (framesLoaded === TOTAL_FRAMES) onComplete();
+        };
+      }
+    }
+
+    /* ── All frames loaded: reveal intro, enable scroll ── */
+    function onAllLoaded() {
+      /* Fade out loader */
+      loaderEl.classList.add('hidden');
+      setTimeout(() => { loaderEl.style.display = 'none'; }, 900);
+
+      /* Open letterbox + wordmark */
+      introEl.classList.add('open');
+      markEl.classList.add('show');
+
+      /* 1.4s cinematic hold, then show scroll cue + unlock */
+      setTimeout(() => {
+        skipEl.classList.add('show');
+        scrollCue.classList.add('show');
+        document.body.classList.add('unlocked');
+        buildScrollTrigger();
+      }, 1400);
+    }
+
+    /* ── Build scroll scrub trigger ── */
+    function buildScrollTrigger() {
+      ScrollTrigger.create({
+        trigger: spacer,
+        start:   'top top',
+        end:     'bottom bottom',
+
+        /*
+         * scrub: true = scroll position maps 1:1 to animation progress,
+         * no easing lag. Combined with image sequences this is perfectly
+         * smooth — showFrame() is O(1), no decode latency whatsoever.
+         */
+        scrub: true,
+
+        onUpdate(self) {
+          const p = self.progress;
+
+          /* Draw the exact frame for this scroll position */
+          showFrame(p * (TOTAL_FRAMES - 1));
+
+          /* Final 8%: CSS scale pushes through the iceberg surface */
+          zoomShell.style.transform = p >= 0.92
+            ? `scale(${1 + ((p - 0.92) / 0.08) * 0.55})`
+            : 'scale(1)';
+
+          /* Scroll cue fade */
+          if (p > 0.02)
+            scrollCue.style.opacity = Math.max(0, 1 - p * 20).toString();
+
+          /* ── STAGE 1: portfolio background fades in (p 0.68 → 0.85) ──
+           * Background and nav become visible before the content zoom kicks in
+           * so the hero text rushes onto an already-lit scene. */
+          if (p >= 0.68) {
+            portfolio.style.opacity = String(Math.min(1, (p - 0.68) / 0.17));
+          } else {
+            portfolio.style.opacity = '0';
+          }
+
+          /* ── STAGE 2: perspective zoom (p 0.70 → 1.0 = 30% range) ──
+           * translateZ rushes hero-inner from depth -600px → 0 through the
+           * perspective: 1200px vanishing point on .hero.
+           * smoothstep easing baked in: fast start, gentle settle at full size.
+           * Opacity leads the zoom so content is clearly visible early. */
+          if (!prefersReducedMotion) {
+            if (p >= 0.70) {
+              const raw = Math.min(1, (p - 0.70) / 0.30);
+              const ez  = raw * raw * (3 - 2 * raw);            /* smoothstep */
+              heroInner.style.transform = `translateZ(${-600 + ez * 600}px) scale(${0.8 + ez * 0.2})`;
+              heroInner.style.opacity   = String(Math.min(1, raw * 2.5));
+            } else {
+              heroInner.style.transform = 'translateZ(-600px) scale(0.8)';
+              heroInner.style.opacity   = '0';
+            }
+          } else {
+            /* Reduced motion: opacity-only fade, no transform */
+            heroInner.style.opacity = p >= 0.70
+              ? String(Math.min(1, (p - 0.70) / 0.15))
+              : '0';
+          }
+
+          /* Trigger shape & contact animations once (guard is inside) */
+          if (p >= 0.88) initPortfolioAnims();
+
+          /* Intro overlay fades out from 86% */
+          if (p >= 0.86)
+            introEl.style.opacity = String(Math.max(0, 1 - (p - 0.86) / 0.14));
+
+          if (p >= 0.90) portfolio.classList.add('active');
+        },
+
+        onLeave() {
+          /* Snap all visuals to final state */
+          portfolio.style.opacity     = '1';
+          introEl.style.opacity       = '0';
+          introEl.style.pointerEvents = 'none';
+          portfolio.classList.add('active');
+          initPortfolioAnims();
+          heroInner.style.opacity   = '1';
+          heroInner.style.transform = prefersReducedMotion ? '' : 'translateZ(0) scale(1)';
+
+          /* Switch portfolio from fixed overlay → normal flow.
+             At progress=1, scrollY = spacer.bottom − viewportHeight.
+             Portfolio's flow position is spacer.bottom (right after spacer).
+             That means portfolio starts at the bottom EDGE of the viewport.
+             margin-top: -100vh pulls it up so the hero section fills the
+             exact viewport the intro just occupied — seamless handoff. */
+          portfolio.style.position  = 'relative';
+          portfolio.style.inset     = '';
+          portfolio.style.overflow  = '';
+          portfolio.style.marginTop = '-100vh';
+        },
+
+        onEnterBack() {
+          introEl.style.opacity       = '1';
+          introEl.style.pointerEvents = 'auto';
+          portfolio.classList.remove('active');
+          /* Reset so the perspective zoom replays on next scroll-through */
+          portfolioAnimsDone        = false;
+          portfolio.style.opacity   = '0';
+          heroInner.style.opacity   = '0';
+          heroInner.style.transform = prefersReducedMotion ? '' : 'translateZ(-600px) scale(0.8)';
+
+          /* Pin portfolio back to viewport so it doesn't scroll from below */
+          portfolio.style.position  = 'fixed';
+          portfolio.style.inset     = '0';
+          portfolio.style.overflow  = 'hidden';
+          portfolio.style.marginTop = '';
+        }
+      });
+    }
+
+    /* ── Skip: jump to portfolio instantly ── */
+    function skipIntro() {
+      portfolio.style.opacity     = '1';
+      introEl.style.opacity       = '0';
+      introEl.style.pointerEvents = 'none';
+      portfolio.classList.add('active');
+      initPortfolioAnims();
+
+      /* Switch from fixed overlay to normal flow */
+      portfolio.style.position  = 'relative';
+      portfolio.style.inset     = '';
+      portfolio.style.overflow  = '';
+      portfolio.style.marginTop = '-100vh';
+      const scrollTarget = spacer.offsetTop + spacer.offsetHeight - window.innerHeight;
+      window.scrollTo({ top: scrollTarget, behavior: 'instant' });
+      /* Play a compressed perspective zoom — same effect, shorter duration */
+      if (!prefersReducedMotion) {
+        heroInner.style.transform = 'translateZ(-600px) scale(0.8)';
+        heroInner.style.opacity   = '0';
+        heroInner.style.transition = 'transform 0.8s cubic-bezier(0.22,1,0.36,1), opacity 0.5s ease';
+        /* Force a reflow so the browser registers the start state before tweening */
+        heroInner.getBoundingClientRect();
+        heroInner.style.transform = 'translateZ(0) scale(1)';
+        heroInner.style.opacity   = '1';
+        /* Clear transition after it completes so scroll can retake control */
+        setTimeout(() => { heroInner.style.transition = ''; }, 900);
+      } else {
+        heroInner.style.opacity   = '1';
+        heroInner.style.transform = '';
+      }
+    }
+
+    /* ── Kick off preload ── */
+    preloadFrames(onAllLoaded);
+
+    /* ──────────────────────────────────────────────
+       PORTFOLIO SECTION ANIMATIONS
+    ────────────────────────────────────────────── */
+    let portfolioAnimsDone = false;
+
+    function initPortfolioAnims() {
+      if (portfolioAnimsDone) return;
+      portfolioAnimsDone = true;
+
+      /*
+       * GEOMETRIC SHAPE ENTRANCE
+       * ─────────────────────────
+       * GSAP owns the full transform (rotation + y + opacity) to avoid
+       * conflicts with any CSS transform on the same element.
+       * Each shape enters from above with its final rotation baked in.
+       */
+      /*
+       * Shape entrance: exact Framer Motion easing from the original component.
+       * cubic-bezier(0.23, 0.86, 0.39, 0.96) = fast ascent, slow settle.
+       * Opacity fades in over 1.2s while the full movement takes 2.4s.
+       * Each shape arrives with its final rotation already baked into the tween.
+       */
+      const shapeRotations = [12, -15, -8, 20, -25];
+      const shapeDelays    = [0.3, 0.5, 0.4, 0.6, 0.7];
+
+      document.querySelectorAll('.geo-shape').forEach((el, i) => {
+        /* Entrance */
+        gsap.fromTo(el,
+          { opacity: 0, y: -150, rotation: shapeRotations[i] - 15 },
+          {
+            y: 0,
+            rotation: shapeRotations[i],
+            duration: 2.4,
+            delay: shapeDelays[i],
+            ease: 'cubic-bezier(0.23, 0.86, 0.39, 0.96)',
+            /* Opacity on a shorter timeline, matching Framer opacity: { duration: 1.2 } */
+            onStart() {
+              gsap.to(el, { opacity: 1, duration: 1.2, delay: 0, ease: 'none' });
+            }
+          }
+        );
+        /*
+         * Continuous bob — exactly 15px over 12s as in the original,
+         * offset per shape so they don't all peak simultaneously.
+         * Delay starts after entrance completes.
+         */
+        gsap.to(el, {
+          y: '+=15',
+          duration: 12,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+          delay: shapeDelays[i] + 2.4 + (i * 0.8)
+        });
+      });
+
+      /* Contact heading — scrolls in when contact section enters viewport.
+         y: 8px max per spec, 550ms, trigger at 65% viewport height. */
+      gsap.from('.contact-h, .contact-sub, .contact .cta-row', {
+        opacity: 0, y: 8, stagger: 0.10, duration: 0.55, ease: 'power2.out',
+        scrollTrigger: { trigger: '.contact', start: 'top 65%' }
+      });
+
+    }
+
+    /* ──────────────────────────────────────────────
+       ENQUIRY MODAL
+    ────────────────────────────────────────────── */
+    const overlay = document.getElementById('enquiry-overlay');
+
+    function openModal(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      /* Reset form/success state so a previous submission doesn't persist */
+      const form    = document.getElementById('enquiry-form');
+      const success = document.getElementById('modal-success');
+      form.style.display = '';
+      form.style.opacity = '1';
+      form.style.transform = '';
+      success.classList.remove('show');
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // Trap focus on first input after animation
+      setTimeout(() => {
+        const first = overlay.querySelector('input, textarea, button');
+        if (first) first.focus();
+      }, 420);
+    }
+
+    function closeModal() {
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOutside(e) {
+      if (e.target === overlay) closeModal();
+    }
+
+    // Escape key closes modal
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+    });
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const form    = document.getElementById('enquiry-form');
+      const success = document.getElementById('modal-success');
+      const btn     = form.querySelector('.modal-submit');
+
+      /* Disable button while sending */
+      btn.disabled  = true;
+      btn.textContent = 'Sending…';
+
+      /* Collect form data — merge checkbox values into comma-separated string */
+      const fd   = new FormData(form);
+      const data = {};
+      fd.forEach((val, key) => {
+        if (data[key]) { data[key] += ', ' + val; }
+        else           { data[key] = val; }
+      });
+
+      /* POST to Formspree */
+      fetch('https://formspree.io/f/mjgezwrv', {
+        method : 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body   : JSON.stringify(data)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        /* Success — animate form out, show confirmation */
+        gsap.to(form, { opacity: 0, y: -12, duration: 0.3, ease: 'power2.in', onComplete() {
+          form.style.display = 'none';
+          success.classList.add('show');
+          gsap.fromTo(success,
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, duration: 0.45, ease: 'cubic-bezier(0.25, 0.4, 0.25, 1)' }
+          );
+        }});
+      })
+      .catch(() => {
+        /* Failure — re-enable button with error message */
+        btn.disabled    = false;
+        btn.textContent = 'Send Enquiry';
+        alert('Something went wrong — please try again or email tez@kinglyclark.com directly.');
+      });
+    }
+  </script>
+
+</body>
+</html>
